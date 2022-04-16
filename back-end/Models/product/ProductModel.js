@@ -3,6 +3,12 @@ const { ReviewSchema } = require("./ReviewSchema");
 const Schema = mongoose.Schema;
 
 const productSchema = new Schema({
+    product_id: {
+        type: mongoose.Types.ObjectId,
+        required: true,
+        unique: true,
+    },
+
     product_name: {
         type: String,
         required: true,
@@ -19,13 +25,9 @@ const productSchema = new Schema({
         artist_followers: Number,
         artist_id: String,
         required: true,
-        ref: 'Artist'
+        ref: "Artist",
     },
-    product_id: {
-        type: mongoose.Types.ObjectId,
-        required: true,
-        unique: true,
-    },
+
     price: {
         type: Number,
         required: true,
@@ -40,10 +42,18 @@ const productSchema = new Schema({
         type: String,
         required: true,
     },
-
+    clicks: {
+        type: Number,
+    },
+    sold_no: {
+        type: Number,
+    },
     Reviews: [ReviewSchema],
-    time: { timestamps: true },
-});
+    created_on: {
+        type: Date,
+        default: Date.now,
+    },
+}, { timestamps: true });
 
 const Products = mongoose.model("Products", productSchema);
 module.exports = Products;
