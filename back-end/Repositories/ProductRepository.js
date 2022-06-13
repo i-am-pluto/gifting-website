@@ -1,13 +1,17 @@
 const { default: mongoose } = require("mongoose");
-const { Products } = require("../Models/product/ProductModel");
+const Products = require("../Models/product/ProductModel");
 
 // getting products
 
 // by id
 const getProductById = async(product_id) => {
-    return await Products.findOne({ product_id: product_id }).exec();
+    const product = await Products.findById(product_id);
+    return product;
 };
-
+const updateAProduct = async(product) => {
+    const savedProduct = await product.save();
+    return savedProduct;
+};
 // by query
 
 // by artist
@@ -19,7 +23,7 @@ const getProductByArtist = async(artist_id, pge_no) => {
     return all;
 };
 
-// by popularity
+// by clicks
 const getProductByPopularity = async(pge_no) => {
     const all = await Products.find()
         .sort({ clicks: 1 })
@@ -27,11 +31,28 @@ const getProductByPopularity = async(pge_no) => {
         .skip(pge_no * 50);
     return all;
 };
+// by sold
 
 // by newly added
 const getProductsByNewLyAdded = async(pge_no) => {
     const all = await Products.find()
         .sort({ created_on: 1 })
+        .limit(50)
+        .skip(pge_no * 50);
+    return all;
+};
+
+const getProductsByClicks = async(pge_no) => {
+    const all = await Products.find()
+        .sort({ clicks: 1 })
+        .limit(50)
+        .skip(pge_no * 50);
+    return all;
+};
+
+const getProductsBySold = async(pge_no) => {
+    const all = await Products.find()
+        .sort({ sold_no: 1 })
         .limit(50)
         .skip(pge_no * 50);
     return all;
@@ -46,31 +67,29 @@ const getProductsByNewLyAdded = async(pge_no) => {
 // todos
 // add a verification Method So That Only Sellers are able to do this
 const addAProduct = async(product) => {
-    await Products.save((error) => {
-        if (error) console.log(`Error: ${error}`);
-    });
-};
-
-// update a product
-const updateAProduct = async(product) => {
-    await Products.save((error) => {
-        if (error) console.log(`Error: ${error}`);
-    });
+    try {
+        const savedProduct = await product.save();
+        return savedProduct;
+    } catch (error) {
+        console.log(error);
+        return null;
+    }
 };
 
 // delete a product
 const deleteAProduct = async(product_id) => {
-    await Products.findByIdAndDelete(product_id, (error) => {
-        if (error) console.log(`Error: ${error}`);
-    });
+    await Products.findByIdAndDelete(product_id);
 };
 
-module.exports = [
+module.exports = {
     getProductByArtist,
     getProductById,
     getProductByPopularity,
     getProductsByNewLyAdded,
+    getProductsByClicks,
+    getProductsBySold,
     addAProduct,
     updateAProduct,
     deleteAProduct,
-];
+    updateAProduct,
+};

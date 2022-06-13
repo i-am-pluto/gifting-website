@@ -2,23 +2,20 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const CartSchema = new Schema({
-    cart_id: {
-        type: mongoose.Types.ObjectId,
-        require: true,
-        unique: true,
-    },
-
     cart_items: [{
-        product_id: mongoose.Types.ObjectId,
+        product_id: { type: mongoose.Types.ObjectId, ref: "Products" },
         // add image thumbnail
         product_name: String,
         artist_name: String,
         price: Number,
-        ref: "Products",
-        date_added: Date.now(),
+
+        date_added: { type: Date, default: Date.now },
         quantity: Number,
-        purchased: Boolean,
     }, ],
+    price: {
+        type: Number,
+        default: 0,
+    },
 });
 
 const Cart = mongoose.model("Cart", CartSchema);

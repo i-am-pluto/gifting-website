@@ -3,23 +3,21 @@ const mongoose = require("mongoose");
 const Schema = mongoose.Schema;
 
 const ReviewSchema = new Schema({
-    review_id: {
-        type: mongoose.Types.ObjectId,
-        required: true,
-        unique: true,
-    },
     rating: Number,
     comment: {
         type: String,
         required: true,
     },
-    user: {
-        user_id: mongoose.Schema.ObjectId,
-        required: true,
-        ref: "Customer",
-    },
+    user_id: { type: mongoose.mongo.ObjectId, ref: "Customer", required: true },
     upvotes: Number,
-    time: { timestamps: true },
+    upvoted_by: [{
+        type: mongoose.mongo.ObjectId,
+        ref: "User",
+    }, ],
+    date: {
+        type: Date,
+        default: Date.now,
+    },
 });
 
 module.exports = ReviewSchema;

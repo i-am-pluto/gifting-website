@@ -1,23 +1,16 @@
-const { default: mongoose } = require("mongoose");
+const { default: mongoose, Mongoose } = require("mongoose");
 const validator = require("validator");
 const { default: isEmail } = require("validator/lib/isEmail");
 
 const Schema = mongoose.Schema;
-
-const customerSchema = new Schema({
-    c_id: {
-        type: mongoose.Types.ObjectId,
-        required: true,
-        unique: true,
-    },
-
+const userSchema = new Schema({
     // add a profile picture
 
     name: {
         f_name: String,
-        l_name: String,
-        required: true,
+        l_name: { type: String, required: true },
     },
+
     email: {
         type: String,
         trim: true,
@@ -47,15 +40,30 @@ const customerSchema = new Schema({
         },
         tag: String,
     }, ],
-    cart_id: {
-        type: mongoose.Types.ObjectId,
-        ref: "Cart",
+    artist: {
+        type: Boolean,
+        default: false,
     },
-    orders: [{
-        type: mongoose.Types.ObjectId,
-        ref: "Orders",
-    }, ],
+    customer: {
+        type: Boolean,
+        default: true,
+    },
+
+    // login credentials
+    username: {
+        type: String,
+        unique: true,
+        required: true,
+    },
+    hash: {
+        type: String,
+        required: true,
+    },
+    salt: {
+        type: String,
+        unique: true,
+    },
 });
 
-const Customer = mongoose.model("Customer", customerSchema);
-module.exports = Customer;
+const User = mongoose.model("User", userSchema);
+module.exports = User;
