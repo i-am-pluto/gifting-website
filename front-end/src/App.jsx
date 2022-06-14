@@ -20,6 +20,8 @@ import SellerWelcome from "./Seller/SellerWelcome";
 import ProductPage from "./productPage/ProductPage";
 import Profile from "./profile/Profile";
 import Cart from "./cart/Cart";
+import Login from "./user/Login";
+import Register from "./user/Register";
 
 function App() {
   document.body.style = "background: #f1faee;";
@@ -40,9 +42,17 @@ function App() {
           <Route exact path="/profile/:profileId">
             <Profile />
           </Route>
-          <Route exact path="/cart">
+          <Route exact path="/cart/:id">
             <Cart />
           </Route>
+          <Route exact path="/login">
+            <Login />
+          </Route>
+          <Route exact path="/register">
+            <Register />
+          </Route>
+          <Route exact path="/customer/edit"></Route>
+          <Route exact path="/dashboard/:id"></Route>
           <Route exact path="/">
             <Redirect to="/home" />
           </Route>
