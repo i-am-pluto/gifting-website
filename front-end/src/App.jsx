@@ -22,12 +22,31 @@ import Profile from "./profile/Profile";
 import Cart from "./cart/Cart";
 import Login from "./user/Login";
 import Register from "./user/Register";
+import { useEffect, useState } from "react";
+import ArtistProfile from "./user/ArtistProfile";
 
 function App() {
-  document.body.style = "background: #f1faee;";
+  let [user, setUser] = useState({});
+  useEffect(() => {
+    document.body.style = "background: #f1faee;";
+    fetch("http://localhost:5000/api/user/", {
+      method: "GET",
+      mode: "cors",
+      headers: {
+        "Access-Control-Allow-Credentials": "true",
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+    })
+      .then((response) => response.json())
+      .then((data) => {
+        setUser(data);
+      });
+  }, []);
+
   return (
     <div className="App">
-      <Header />
+      <Header user={user} />
       <Router>
         <Switch>
           <Route exact path="/seller">
@@ -51,8 +70,11 @@ function App() {
           <Route exact path="/register">
             <Register />
           </Route>
-          <Route exact path="/customer/edit"></Route>
+          <Route exact path="/user/:id/artist/">
+            <ArtistProfile />
+          </Route>
           <Route exact path="/dashboard/:id"></Route>
+
           <Route exact path="/">
             <Redirect to="/home" />
           </Route>
