@@ -24,6 +24,7 @@ import Login from "./user/Login";
 import Register from "./user/Register";
 import { useEffect, useState } from "react";
 import ArtistProfile from "./user/ArtistProfile";
+import CustomerProfile from "./user/CustomerProfile";
 
 function App() {
   let [user, setUser] = useState({});
@@ -72,6 +73,9 @@ function App() {
           </Route>
           <Route exact path="/user/:id/artist/">
             <ArtistProfile />
+          </Route>
+          <Route exact path="/user/:id/customer/">
+            <CustomerProfile />
           </Route>
           <Route exact path="/dashboard/:id"></Route>
 
