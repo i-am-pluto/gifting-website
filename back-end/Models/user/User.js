@@ -40,6 +40,23 @@ const userSchema = new Schema({
         },
         tag: String,
     }, ],
+
+    payment: [{
+        card_number: {
+            type: String,
+            required: true,
+            maxlength: 16,
+        },
+        card_holder: {
+            type: String,
+            required: true,
+        },
+        expiry: {
+            type: String,
+            required: true,
+        },
+    }, ],
+
     artist: {
         type: Boolean,
         default: false,

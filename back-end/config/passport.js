@@ -7,8 +7,8 @@ const { validPassword } = require("../Services/UserService");
 passport.use(
     new LocalStrategy(async(username, password, done) => {
         try {
+            console.log("hi");
             const user = await User.findOne({ username: username });
-
             if (!user) {
                 return done(null, false);
             }

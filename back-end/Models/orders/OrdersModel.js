@@ -3,16 +3,15 @@ const { default: mongoose } = require("mongoose");
 const Schema = mongoose.Schema;
 
 const OrdersSchema = new Schema({
-    order_id: {
-        type: mongoose.Types.ObjectId,
-        required: true,
-        unique: true,
-    },
     order_amount: Number,
-    order_items: [{
-        type: String,
-        ref: "Products",
-    }, ],
+    order_items: {
+        cart_item: {
+            type: mongoose.mongo.ObjectId,
+        },
+        cart: {
+            type: mongoose.mongo.ObjectId,
+        },
+    },
     order_address: {
         fline: String,
         sline: String,
@@ -32,10 +31,22 @@ const OrdersSchema = new Schema({
     },
     order_status: {
         type: String,
-        enum: ["Not Yet Dispatched", "Dispatched, out for delivery", "Delivered"],
+        enum: [
+            "PAYMENT NOT RECIEVED",
+            "PAYMENT RECIVED",
+            "DISPATCHED",
+            "DELIVERED",
+        ],
+        default: "PAYMENT NOT RECIEVED",
+    },
+    payment_intent_id: {
+        type: String,
     },
     c_id: {
         type: mongoose.Types.ObjectId,
         ref: "Customer",
     },
 }, { timestamps: true });
+
+const Orders = mongoose.model("Orders", OrdersSchema);
+module.exports = Orders;

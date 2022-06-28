@@ -4,8 +4,7 @@ const userService = require("../Services/UserService");
 // get artist by id
 const getArtistByID = async(artist_id) => {
     const artist = await Artist.findOne({ user_id: artist_id });
-    console.log(artist);
-    return artist;
+    return artist._doc;
 };
 
 // get artist by name || search

@@ -1,125 +1,192 @@
 import React, { useState } from "react";
 
 const EditGeneral = ({ profile_user }) => {
-  const [f_name, setFname] = useState(profile_user.name.f_name);
-  const [l_name, setLname] = useState(profile_user.name.l_name);
-  const [email, setEmail] = useState(profile_user.email);
-  const [phoneNumber, setPhoneNumber] = useState(profile_user.phonenumber);
+  const [cardHolder, setCardHolder] = useState();
 
-  const handleSubmit = async (e) => {
-    e.preventDefault();
-
-    const user = {
-      profile_user,
-    };
-
-    user.name.f_name = f_name;
-    user.name.l_name = l_name;
-    user.email = email;
-    user.phonenumber = phoneNumber;
-    const response = await fetch("http://localhost:5000/api/user/edit", {
-      method: "POST",
-      mode: "cors",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(user),
-    });
-    const data = await response.json();
-    if (!data.success) {
-      alert(data.message);
-    }
-  };
+  const [cardNumber, setCardNumber] = useState();
+  const [expiry, setExpiry] = useState();
+  let address = {};
+  let artist = false;
+  let customer = false;
+  const handleSubmit = async (e) => {};
 
   return (
     <div>
       <div class="container bootstrap snippets bootdey">
-        <h1 class="text-primary">Edit Profile</h1>
+        <h1 class="text-primary">General Information</h1>
+        <p className="alert">
+          *The Information below can be updated at the time of order
+        </p>
         <hr />
         <div class="row">
-          <div class="col-md-3">
-            <div class="text-center">
-              <img
-                class="avatar img-circle img-thumbnail"
-                alt="avatar"
-                id="profile-pic"
-              />
-              <h6>Upload a different photo...</h6>
-
-              <input
-                type="file"
-                class="form-control"
-                onChange={(input) => {
-                  console.log("hi");
-                  var reader = new FileReader();
-                  reader.onload = (e) => {
-                    document
-                      .getElementById("profile-pic")
-                      .setAttribute("src", e.target.result);
-                  };
-
-                  reader.readAsDataURL(input.target.files[0]);
-                }}
-              />
-            </div>
-          </div>
-
-          <div class="col-md-9 personal-info">
+          <div class="col">
+            <h3>Payment Information</h3>
             <form class="form-horizontal" onSubmit={handleSubmit}>
               <div class="form-group">
-                <label class="col-lg-3 control-label">First name:</label>
+                <label class="col-lg-5 control-label">Card Number:</label>
                 <div class="col-lg-8">
                   <input
+                    type="tel"
+                    inputmode="numeric"
+                    autocomplete="cc-number"
+                    maxlength="19"
                     class="form-control"
-                    type="text"
-                    value={f_name}
+                    value={cardNumber}
+                    placeholder="1234 5678 9123 4567"
                     onChange={(e) => {
-                      setFname(e.target.value);
+                      if (isNaN(e.target.value) || e.target.value.length > 16) {
+                        e.target.style.borderColor = "red";
+                        return;
+                      }
+                      e.target.style.borderColor = "green";
+                      setCardNumber(e.target.value);
                     }}
                   />
                 </div>
               </div>
               <div class="form-group">
-                <label class="col-lg-3 control-label">Last name:</label>
+                <label class="col-lg-5 control-label">Card Holder:</label>
                 <div class="col-lg-8">
                   <input
                     class="form-control"
                     type="text"
-                    value={l_name}
+                    value={cardHolder}
+                    placeholder="lana rhodes"
                     onChange={(e) => {
-                      setLname(e.target.value);
+                      setCardHolder(e.target.value);
                     }}
                   />
                 </div>
               </div>
               <div class="form-group">
-                <label class="col-lg-3 control-label">Email:</label>
+                <label class="col-lg-5 control-label">Expiry Date:</label>
                 <div class="col-lg-8">
                   <input
                     class="form-control"
                     type="text"
-                    value={email}
+                    value={expiry}
                     onChange={(e) => {
-                      setEmail(e.target.value);
+                      if (!isNaN(e.target.value) || e.target.value.length > 4) {
+                        e.target.style.borderColor = "red";
+                        return;
+                      }
+                      e.target.style.borderColor = "green";
+                      setExpiry(e.target.value);
                     }}
                   />
                 </div>
               </div>
-              <div class="form-group">
-                <label class="col-lg-3 control-label">Phone Number:</label>
-                <div class="col-lg-8">
-                  <input
-                    class="form-control"
-                    type="text"
-                    value={phoneNumber}
-                    onChange={(e) => {
-                      setPhoneNumber(e.target.value);
-                    }}
-                  />
-                </div>
-              </div>
+              <button className="btn btn-primary ml-3">
+                <i className="fas fa-save"></i>
+              </button>
             </form>
+          </div>
+
+          <div class="col personal-info">
+            <h3>Address</h3>
+            <div className="row mb-3">
+              <div className="col">
+                <input
+                  type="text"
+                  name="fline"
+                  id="fline"
+                  placeholder="First Line"
+                  className="form-control"
+                  onChange={(e) => {
+                    address.fline = e.target.value;
+                  }}
+                />
+              </div>
+              <div className="col">
+                <input
+                  type="text"
+                  name="sline"
+                  id="sline"
+                  placeholder="Second Line"
+                  className="form-control"
+                  onChange={(e) => {
+                    address.sline = e.target.value;
+                  }}
+                />
+              </div>
+            </div>
+            <div className="row mb-3">
+              <div className="col">
+                <input
+                  type="text"
+                  name="city"
+                  id="city"
+                  placeholder="City"
+                  className="form-control"
+                  onChange={(e) => {
+                    address.city = e.target.value;
+                  }}
+                />
+              </div>
+              <div className="col">
+                <input
+                  type="text"
+                  name="state"
+                  id="state"
+                  placeholder="State"
+                  className="form-control"
+                  onChange={(e) => {
+                    address.state = e.target.value;
+                  }}
+                />
+              </div>
+            </div>
+            <div className="mb-2">
+              <select
+                className="form-select bg-dark text-white"
+                onChange={(e) => {
+                  address.country = e.target.value;
+                }}
+              >
+                <option value="">Select Country</option>
+                <option value="India">India</option>
+                <option value="Others">Others</option>
+              </select>
+            </div>
+            <div className="row">
+              <div className="col">
+                <input
+                  type="text"
+                  className="form-control"
+                  placeholder="zip"
+                  onChange={(e) => {
+                    const n = e.target.value;
+                    if (isNaN(n) || n.length != 6) {
+                      e.target.style.borderColor = "red";
+                      return;
+                    }
+                    e.target.style.borderColor = "green";
+                    address.pincode = Number(n);
+                  }}
+                ></input>
+              </div>
+
+              <div className=" col">
+                <select
+                  name="tag"
+                  id=""
+                  className="form-select bg-dark text-white"
+                  onChange={(e) => {
+                    address.tag = e.target.value;
+                  }}
+                >
+                  <option value="Home">Home</option>
+                  <option value="Office">Office</option>
+                  <option value="Other">Other</option>
+                </select>
+              </div>
+            </div>
+
+            <br />
+
+            <button className="btn btn-primary">
+              <i className="fas fa-save"></i>
+            </button>
           </div>
         </div>
       </div>

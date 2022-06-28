@@ -1,5 +1,6 @@
 import React, { useState } from "react";
 import { useHistory } from "react-router-dom";
+// require("dot-env").config();
 
 function Register() {
   let name = {};
@@ -22,6 +23,8 @@ function Register() {
       address: address,
       username: email,
       password: password,
+      artist,
+      customer,
     };
     console.log(JSON.stringify(obj));
     const respone = await fetch("http://localhost:5000/api/user/register", {
@@ -35,7 +38,9 @@ function Register() {
     });
 
     respone.json().then((data) => {
-      if (data.success) {
+      if (data.success && artist) {
+        window.location.replace(data.url);
+      } else if (data.success) {
         navigate.push("/login");
       } else {
         setAlert("Pls Fill The Form With Valid Information");

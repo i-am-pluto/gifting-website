@@ -1,4 +1,5 @@
 const express = require("express");
+const mongoose = require("mongoose");
 const passport = require("passport");
 const User = require("../../Models/user/User");
 const {
@@ -6,9 +7,14 @@ const {
     markUserCustomer,
     markUserArtist,
 } = require("../../Services/UserService");
+const userService = require("../../Services/UserService");
 const AuthMiddleware = require("./AuthMiddleware");
 
 const router = express.Router();
+
+router.get("/", (req, res) => {
+    res.json(req.user);
+});
 
 router.post(
     "/login",
@@ -17,7 +23,10 @@ router.post(
         failureRedirect: "/api/user/login-failure",
     }),
     (req, res, next) => {
-        res.json({ message: "You Were Successfully Logged in To Your Account" });
+        res.json({
+            message: "You Were Successfully Logged in To Your Account",
+            success: true,
+        });
     }
 );
 
@@ -52,14 +61,29 @@ router.post("/register", async(req, res, next) => {
 
     try {
         const saveduser = await newuser.save();
-        console.log(saveduser);
-        if (saveduser.artist) {
-            await markUserArtist(saveduser.id);
-        }
-        if (saveduser.customer) {
+        if (saveduser.artist && saveduser.customer) {
+            const artist = await markUserArtist(saveduser.id);
             await markUserCustomer(saveduser.id);
+            res.json({
+                message: "Succesfully Created Your Account",
+                success: true,
+                url: artist.url,
+            });
+        } else if (saveduser.artist) {
+            const artist = await markUserArtist(saveduser.id);
+            res.json({
+                message: "Succesfully Created Your Account",
+                success: true,
+                url: artist.url,
+            });
+        } else if (saveduser.customer) {
+            const customer = await markUserCustomer(saveduser.id);
+
+            res.json({
+                message: "Succesfully Created Your Account",
+                success: true,
+            });
         }
-        res.json({ message: "Succesfully Created Your Account", success: true });
     } catch (error) {
         res.json({
             message: `Failed to create the Account: ${error}`,
@@ -68,6 +92,7 @@ router.post("/register", async(req, res, next) => {
         res.end();
     }
 });
+
 router.get("/logout", AuthMiddleware.isAuth, (req, res, next) => {
     req.logout((err) => {
         res.json({ message: "Logged out", success: "true" });
@@ -75,4 +100,66 @@ router.get("/logout", AuthMiddleware.isAuth, (req, res, next) => {
     });
 });
 
+router.get(
+    "/:id/role",
+    AuthMiddleware.isUserAuthorOfRequest,
+    async(req, res, next) => {
+        const user = await userService.getUserById(
+            mongoose.mongo.ObjectId(req.params.id)
+        );
+        if (user)
+            res.json({
+                message: "Successfully retrieved the request.",
+                success: true,
+                artist: user.artist,
+                customer: user.customer,
+            });
+        else
+            res.json({
+                message: "Successfully retrieved the request.",
+                success: false,
+            });
+    }
+);
+
+router.get(
+    "/:id/markusercustomer",
+    AuthMiddleware.isUserAuthorOfRequest,
+    async(req, res, next) => {
+        const user = await userService.markUserCustomer(
+            mongoose.mongo.ObjectId(req.params.id)
+        );
+        if (user.customer) {
+            res.json({
+                message: "successfully marked the user as a customer",
+                success: true,
+            });
+        } else {
+            res.json({
+                message: "Failed To mark the user as a Customer",
+                success: false,
+            });
+        }
+    }
+);
+router.get(
+    "/:id/markuserartist",
+    AuthMiddleware.isUserAuthorOfRequest,
+    async(req, res, next) => {
+        const user = await userService.markUserArtist(
+            mongoose.mongo.ObjectId(req.params.id)
+        );
+        if (user.artist) {
+            res.json({
+                message: "successfully marked the user as a customer",
+                success: true,
+            });
+        } else {
+            res.json({
+                message: "Failed To mark the user as a Customer",
+                success: false,
+            });
+        }
+    }
+);
 module.exports = router;

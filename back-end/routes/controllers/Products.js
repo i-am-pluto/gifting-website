@@ -19,14 +19,25 @@ router.get("/:id", async(req, res) => {
 // get search results
 
 // add a product
-router.post("/add", AuthMiddleware.isArtist, async(req, res) => {
-    const product = await productServices.addAProduct(req.body, req.user.id);
-    if (!product) {
-        res.json({ message: "Failed To Add The Product", success: false });
-    } else {
-        res.json({ message: "Added The Product Successfully", success: true });
+router.post(
+    "/:id/add",
+    AuthMiddleware.isUserAuthorOfRequest,
+    async(req, res) => {
+        const product = await productServices.addAProduct(req.body, req.user.id);
+        if (!product) {
+            res.json({
+                message: "Failed To Add The Product",
+                success: false,
+            });
+        } else {
+            res.json({
+                id: product.id,
+                message: "Added The Product Successfully",
+                success: true,
+            });
+        }
     }
-});
+);
 
 // edit a product
 router.post("/:id/edit", AuthMiddleware.isArtistToProduct, async(req, res) => {

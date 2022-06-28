@@ -8,16 +8,48 @@ const connectDB = require("./config/db");
 const routes = require("./routes");
 const bodyParser = require("body-parser");
 const MongoStore = require("connect-mongo");
+const cors = require("cors");
+const cookieParser = require("cookie-parser");
+const { retrieveSession } = require("./Services/StripeAccnt");
+const { getOrderByPaymentIntent } = require("./Services/OrderService");
+const { removeProductFromCart } = require("./Repositories/CartRepository");
+const cartService = require("./Services/CartService");
+const artistService = require("./Services/ArtistService");
+
+require("dotenv").config();
+
 const app = express();
 
 connectDB();
+app.use(
+    cors({
+        credentials: true,
+        origin: "http://localhost:3000",
+    })
+);
 app.use(bodyParser.json());
+
 app.use(bodyParser.urlencoded({ extended: true }));
+
+app.use(function(req, res, next) {
+    res.header("Access-Control-Allow-Credentials", true);
+    res.header("Access-Control-Allow-Origin", req.headers.origin);
+    res.header("Access-Control-Allow-Methods", "GET,PUT,POST,DELETE");
+    res.header(
+        "Access-Control-Allow-Headers",
+        "X-Requested-With, X-HTTP-Method-Override, Content-Type, Accept"
+    );
+    if ("OPTIONS" == req.method) {
+        res.send(200);
+    } else {
+        next();
+    }
+});
 
 app.get("/", (req, res) => {
     res.end("Hello WOlrd");
 });
-
+console.log(process.env.DB_PASS);
 /**
  * -------------- SESSION SETUP ----------------
  */
@@ -25,7 +57,7 @@ app.get("/", (req, res) => {
 app.use(
     session({
         secret: "secret temp",
-        resave: false,
+        resave: true,
         saveUninitialized: true,
         store: MongoStore.create({
             mongoUrl: "mongodb://127.0.0.1/mydb",
@@ -35,6 +67,7 @@ app.use(
         },
     })
 );
+app.use(cookieParser("secret temp"));
 
 /**
  * -------------- PASSPORT AUTHENTICATION ----------------
@@ -47,10 +80,72 @@ app.use(passport.initialize());
 app.use(passport.session());
 
 app.use((req, res, next) => {
-    // console.log(req.session);
-    // console.log(req.user);
+    // console.log(req.sessionID);
+    // console.log(req.body);
     next();
 });
+
+app.post(
+    "/webhook",
+    express.raw({ type: "application/json" }),
+    async(request, response) => {
+        let event = request.body;
+        // Only verify the event if you have an endpoint secret defined.
+        // Otherwise use the basic event deserialized with JSON.parse
+        if (endpointSecret) {
+            // Get the signature sent by Stripe
+            const signature = request.headers["stripe-signature"];
+            try {
+                event = stripe.webhooks.constructEvent(
+                    request.body,
+                    signature,
+                    endpointSecret
+                );
+            } catch (err) {
+                console.log(`⚠️  Webhook signature verification failed.`, err.message);
+                return response.sendStatus(400);
+            }
+        }
+
+        // Handle the event
+        switch (event.type) {
+            case "payment_intent.succeeded":
+                const paymentIntent = event.data.object;
+                console.log(
+                    `PaymentIntent for ${paymentIntent.amount} was successful!`
+                );
+                // Then define and call a method to handle the successful payment intent.
+                const order = await getOrderByPaymentIntent(paymentIntent);
+                // update the order status to payment recieved
+                const updatedOrder = await markOrderPaid(order);
+                // delete the item from cart
+                await cartService.removeItem(order.cart, order.cart_item);
+                // handlePaymentIntentSucceeded(paymentIntent);
+
+                break;
+            case "payment_method.attached":
+                const paymentMethod = event.data.object;
+                // Then define and call a method to handle the successful attachment of a PaymentMethod.
+                // handlePaymentMethodAttached(paymentMethod);
+                break;
+            case "account.updated":
+                const account = event.data.object;
+                if (account.charges_enabled) {
+                    const acc = await artistService.getAccountByStripeAccountId(
+                        account.id
+                    );
+                    await artistService.markAccountEnabled(acc);
+                }
+                break;
+            default:
+                // Unexpected event type
+                console.log(`Unhandled event type ${event.type}.`);
+        }
+
+        // Return a 200 response to acknowledge receipt of the event
+        response.send();
+    }
+);
 
 app.use(routes);
 

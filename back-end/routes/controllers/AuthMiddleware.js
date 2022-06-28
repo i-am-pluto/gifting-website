@@ -12,7 +12,7 @@ const isAuth = (req, res, next) => {
 };
 
 const isAdmin = (req, res, next) => {
-    if (req.isAuthenticated && user.admin) {
+    if (req.isAuthenticated() && user.admin) {
         next();
     } else {
         res.status(401).json({
@@ -23,7 +23,7 @@ const isAdmin = (req, res, next) => {
 };
 
 const isCustomer = (req, res, next) => {
-    if (req.isAuthenticated && req.user.admin) {
+    if (req.isAuthenticated() && req.user.admin) {
         next();
     } else {
         res.status(401).json({
@@ -33,7 +33,7 @@ const isCustomer = (req, res, next) => {
     }
 };
 const isArtist = (req, res, next) => {
-    if (req.isAuthenticated && req.user.artist) {
+    if (req.isAuthenticated() && req.user.artist) {
         next();
     } else {
         res.status(401).json({
@@ -45,9 +45,9 @@ const isArtist = (req, res, next) => {
 
 const isArtistToProduct = (req, res, next) => {
     if (
-        req.isAuthenticated &&
+        req.isAuthenticated() &&
         req.user.artist &&
-        req.user.id === mongoose.Types.ObjectId(req.params.id)
+        req.user.id === req.params.id
     ) {
         next();
     } else {
@@ -60,7 +60,7 @@ const isArtistToProduct = (req, res, next) => {
 
 const isArtistOfThePage = (req, res, next) => {
     if (
-        req.isAuthenticated &&
+        req.isAuthenticated() &&
         req.user.artist &&
         req.user.id === mongoose.Types.ObjectId(req.params.id)
     ) {
@@ -75,10 +75,21 @@ const isArtistOfThePage = (req, res, next) => {
 
 const isCustomerToCart = (req, res, next) => {
     if (
-        req.isAuthenticated &&
+        req.isAuthenticated() &&
         req.user.customer &&
         req.user.id === mongoose.Types.ObjectId(req.params.id)
     ) {
+        next();
+    } else {
+        res.status(401).json({
+            message: "The user is unautherised to make changes to this product",
+            success: false,
+        });
+    }
+};
+
+const isUserAuthorOfRequest = (req, res, next) => {
+    if (req.isAuthenticated() && req.params.id === req.user.id) {
         next();
     } else {
         res.status(401).json({
@@ -96,4 +107,5 @@ module.exports = {
     isArtistOfThePage,
     isArtistToProduct,
     isCustomerToCart,
+    isUserAuthorOfRequest,
 };

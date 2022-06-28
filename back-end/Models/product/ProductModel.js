@@ -29,6 +29,10 @@ const productSchema = new Schema({
         required: true,
         default: 0,
     },
+    // stripe price_id
+    stripe_price_id: {
+        type: String,
+    },
     count_in_stock: {
         type: Number,
         required: true,
@@ -36,7 +40,26 @@ const productSchema = new Schema({
     },
     description: {
         type: String,
-        required: true,
+    },
+    info1: {
+        type: String,
+    },
+    info2: {
+        type: String,
+    },
+    informationTable: {
+        itemWeight: {
+            type: String,
+        },
+        packageDimension: {
+            type: String,
+        },
+        manufacture: {
+            type: String,
+        },
+    },
+    customization: {
+        type: String,
     },
     clicks: {
         type: Number,

@@ -2,6 +2,7 @@ const mongoose = require("mongoose");
 const { createACart } = require("./CartService");
 const customerRepository = require("../Repositories/CustomerRepository");
 const { getProductById } = require("../Repositories/ProductRepository");
+const { getArtistByID } = require("../Repositories/ArtistRepository");
 
 const addACustomer = async(user_id) => {
     const cart = await createACart();
@@ -23,16 +24,26 @@ const getCartByCustomerId = async(user_id) => {
 const addToCart = async(product_id, user_id) => {
     const cart = await getCartByCustomerId(user_id);
     const product = await getProductById(product_id);
+    const artist = await getArtistByID(product.artist.artist_id);
     const p = {
         product_id: product.id,
-        product_name: product.name,
-        artist_name: product.artist.name,
+        product_name: product.product_name,
+        artist_name: product.artist.artist_name,
+        artist_stripe_account_id: artist.artist_stripe_account_id,
         price: product.price,
+        stripe_price_id: product.stripe_price_id,
         quantity: 1,
     };
     const addPrice = product.price;
     const savedCart = await cartRepository.addToCart(cart, p, addPrice);
+
     return savedCart;
+};
+
+const addOrderToCustomer = async(user_id, order_id) => {
+    const customer = await getCustomerById(user_id);
+    customer.orders.push(order_id);
+    await customer.save();
 };
 
 module.exports = {
@@ -40,4 +51,5 @@ module.exports = {
     addToCart,
     getCartByCustomerId,
     getCustomerById,
+    addOrderToCustomer,
 };

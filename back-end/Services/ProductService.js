@@ -5,7 +5,8 @@ const { getArtistByID } = require("../Repositories/ArtistRepository");
 const { getCategoryById } = require("../Repositories/CategoryRepository");
 const productRepository = require("../Repositories/ProductRepository");
 const reviewRepository = require("../Repositories/reviewRepository");
-
+const { createProductObject, createPriceObject } = require("./StripeAccnt");
+const artistService = require("./ArtistService");
 //get a product
 const getAProduct = async(id) => {
     let product = await productRepository.getProductById(id);
@@ -41,7 +42,7 @@ const addAProduct = async(jsonObject, user_id) => {
     const tempCat = jsonObject.categories;
     const categories = new Array();
     const artist = await getArtistByID(mongoose.Types.ObjectId(user_id));
-    if (tempCat)
+    if (tempCat) {
         for (var i = 0; i < tempCat.length; i++) {
             const category = await getCategoryById(tempCat[i]);
             categories.push({
@@ -49,6 +50,8 @@ const addAProduct = async(jsonObject, user_id) => {
                 cat_name: category.cat_name,
             });
         }
+    }
+    console.log(jsonObject);
     const product = new Products({
         product_name: jsonObject.product_name,
         categories: categories,
@@ -66,7 +69,21 @@ const addAProduct = async(jsonObject, user_id) => {
         description: jsonObject.description,
         clicks: 0,
         sold_no: 0,
+        description: jsonObject.description,
+        info1: jsonObject.info1,
+        info2: jsonObject.info2,
+        informationTable: {
+            itemWeight: jsonObject.itemWeight,
+            packageDimension: jsonObject.packageDimension,
+            manufacture: jsonObject.manufacture,
+        },
+        customization: jsonObject.customization,
     });
+    const stripe_account = artist.stripe_account_id;
+    const stripe_product = await createProductObject(product, stripe_account.id);
+
+    product.stripe_price_id = stripe_product.price.id;
+
     try {
         const savedProduct = await productRepository.addAProduct(product);
         await artistService.addAProduct(artist, savedProduct.id);
@@ -107,7 +124,7 @@ const upvoteReview = async(user_id, review_id) => {
 };
 const downvoteReview = async(user_id, review_id) => {
     const review = await reviewRepository.getReview(review_id);
-    review.upvoted_by.array.forEach((element, i) => {
+    review.upvoted_by.array.forEach(async(element, i) => {
         if (element === user_id) {
             review.upvotes--;
             review.upvoted_by.splice(i, 1);
@@ -116,7 +133,6 @@ const downvoteReview = async(user_id, review_id) => {
         }
     });
     return null;
-
 };
 // delete a product
 const deleteAProduct = async(product_id) => {
@@ -166,5 +182,5 @@ module.exports = {
     getSimilarProducts,
     addAProduct,
     upvoteReview,
-    downvoteReview
+    downvoteReview,
 };

@@ -22,9 +22,9 @@ const addToCart = async(cart, product, addPrice) => {
 };
 
 // remove product from cart
-const removeProductFromCart = async(cart, product_id) => {
+const removeProductFromCart = async(cart, cart_item_id) => {
     for (var i = 0; i < cart.cart_items.length; i++) {
-        if (cart.cart_items[i].product_id === product_id) {
+        if (cart.cart_items[i].id === cart_item_id) {
             cart.price -= cart.cart_items[i].price * cart.cart_items[i].quantity;
             cart.cart_items.splice(i, 1);
             break;
@@ -33,10 +33,21 @@ const removeProductFromCart = async(cart, product_id) => {
     const newCart = await cart.save();
     return newCart;
 };
-const updateCartItem = async(cart, product) => {
+
+// const find cart_item from cart
+const getCartItemById = async(cart, cart_item_id) => {
+    for (var i = 0; i < cart.cart_items.length; i++) {
+        if (cart.cart_items[i].id === cart_item_id) {
+            return cart.cart_items[i];
+        }
+    }
+    return null;
+};
+
+const updateCartItem = async(cart, product_json, cart_item_id) => {
     cart.cart_items.array.forEach((element, i) => {
-        if (element.product_id == product.product_id) {
-            cart.cart_items[i] = product;
+        if (element.id == cart_item_id) {
+            cart.cart_items[i] = product_json;
             cart.price +=
                 product.price * product.quantity -
                 cart.cart_items[i].price * cart.cart_items[i].quantity;
@@ -54,4 +65,5 @@ module.exports = {
     addToCart,
     updateCartItem,
     removeProductFromCart,
+    getCartItemById,
 };

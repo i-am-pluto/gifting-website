@@ -20,6 +20,9 @@ const validPassword = (password, hash, salt) => {
     var hashVerify = crypto
         .pbkdf2Sync(password, salt, 10000, 64, "sha512")
         .toString("hex");
+    console.log(hashVerify);
+    console.log(hash);
+    console.log(hash === hashVerify);
     return hash === hashVerify;
 };
 
@@ -32,14 +35,14 @@ const markUserArtist = async(user_id) => {
     user.artist = true;
     const savedUser = await user.save();
     const artist = await artistService.addAnArtist(user);
-    return artist;
+    return savedUser;
 };
 const markUserCustomer = async(user_id) => {
     const user = await userRepository.getUserById(user_id);
     user.customer = true;
     const savedUser = await user.save();
     const customer = await customerService.addACustomer(user);
-    return customer;
+    return savedUser;
 };
 
 // register logic

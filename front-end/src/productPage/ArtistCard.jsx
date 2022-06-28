@@ -5,7 +5,7 @@ function ArtistCard({ Artist }) {
   const pfp_image = Artist.artist_pfp;
   const cover_image = Artist.artist_cover;
   const artist_name = Artist.artist_name;
-  let artist_followers = Artist.artist_followers;
+  let artist_followers = Artist.followers_count;
   const artist_bio = Artist.artist_bio;
   let c = 0;
   while (parseInt(artist_followers / 1000) > 0) {

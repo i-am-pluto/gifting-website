@@ -3,8 +3,8 @@ const ReviewSchema = require("../Models/product/ReviewSchema");
 
 // update review
 const updateAReview = async(review) => {
-    const review = review.save();
-    return review;
+    const r = await review.save();
+    return r;
 };
 // remove review
 const deleteAReview = async(review_id) => {
@@ -12,8 +12,8 @@ const deleteAReview = async(review_id) => {
 };
 // add review
 const addAReview = async(review) => {
-    const review = review.save();
-    return review;
+    const r = await review.save();
+    return r;
 };
 
 module.exports = {

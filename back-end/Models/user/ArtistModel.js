@@ -17,7 +17,7 @@ const artistSchema = new Schema({
     bio: {
         type: String,
     },
-    follower_count: Number,
+    follower_count: { type: Number, default: 0 },
 
     products: [{
         type: mongoose.mongo.ObjectId,
@@ -26,7 +26,17 @@ const artistSchema = new Schema({
 
     // artist profile picture
     // artist cover picture
+
     // payment details
+    stripe_account_id: {
+        type: String,
+        required: true,
+    },
+    stripe_account_enabled: {
+        type: Boolean,
+        required: true,
+        default: false,
+    },
 });
 
 const Artist = mongoose.model("Artist", artistSchema);

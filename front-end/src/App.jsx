@@ -25,6 +25,8 @@ import Register from "./user/Register";
 import { useEffect, useState } from "react";
 import ArtistProfile from "./user/ArtistProfile";
 import CustomerProfile from "./user/CustomerProfile";
+import AddAProduct from "./Seller/AddAProduct";
+import Role from "./user/Role";
 
 function App() {
   let [user, setUser] = useState({});
@@ -71,14 +73,18 @@ function App() {
           <Route exact path="/register">
             <Register />
           </Route>
+          <Route exact path="/user/:id">
+            <Role />
+          </Route>
           <Route exact path="/user/:id/artist/">
             <ArtistProfile />
           </Route>
           <Route exact path="/user/:id/customer/">
             <CustomerProfile />
           </Route>
-          <Route exact path="/dashboard/:id"></Route>
-
+          <Route exact path="/user/:id/addaproduct">
+            <AddAProduct />
+          </Route>
           <Route exact path="/">
             <Redirect to="/home" />
           </Route>
