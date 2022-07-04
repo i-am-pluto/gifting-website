@@ -52,7 +52,7 @@ function App() {
       <Header user={user} />
       <Router>
         <Switch>
-          <Route exact path="/seller">
+          <Route exact path="/seller" >
             <SellerWelcome />
           </Route>
           <Route exact path="/home">

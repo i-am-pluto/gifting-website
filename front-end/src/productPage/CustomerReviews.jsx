@@ -3,7 +3,7 @@ import { useState } from "react";
 import "./CustomerReview.css";
 function CustomerReviews({ Reviews }) {
   let [comments, setComments] = useState(Reviews);
-  
+
   function addComment(e) {
     if (e.keyCode === 13) {
       let newState = [...comments];
@@ -11,8 +11,8 @@ function CustomerReviews({ Reviews }) {
         author: "Daddy",
         upvotes: 20,
         Review: e.target.value,
-        pfp_image:
-          "https://pr0.nicelocal.in/6qdaxqt5l9uP8UCWsYwkyg/220x440,q85/4px-BW84_n0QJGVPszge3NRBsKw-2VcOifrJIjPYFYkOtaCZxxXQ2auZQCd9fMUEh5Lz3pfPAmSVLA-JtmXcbxXM8bMlH9xJb6NgdQHuDCXtnfhdR-jzLg",
+        // pfp_image:
+        //   "https://pr0.nicelocal.in/6qdaxqt5l9uP8UCWsYwkyg/220x440,q85/4px-BW84_n0QJGVPszge3NRBsKw-2VcOifrJIjPYFYkOtaCZxxXQ2auZQCd9fMUEh5Lz3pfPAmSVLA-JtmXcbxXM8bMlH9xJb6NgdQHuDCXtnfhdR-jzLg",
       });
       e.target.value = "";
       setComments(newState);
@@ -32,7 +32,7 @@ function CustomerReviews({ Reviews }) {
         Number(document.getElementById(count_id).innerText) - 1;
     }
   }
-  
+
   return (
     <div>
       <div class="container justify-content-center mt-5 border-left border-right">

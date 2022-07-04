@@ -16,9 +16,9 @@ function ArtistProfile() {
       instagram: "https://www.ig.com",
       youtube: "https://www.linkedin.com",
     },
-    cover:
-      "https://hdwallsource.com/img/2021/8/lana-rhoades-sexy-wallpaper-73804-76479-hd-wallpapers.jpg",
-    pfp: "https://i.pinimg.com/originals/63/a8/45/63a845bfa536ec51341e74691b4d5796.png",
+    // cover:
+    //   "https://hdwallsource.com/img/2021/8/lana-rhoades-sexy-wallpaper-73804-76479-hd-wallpapers.jpg",
+    // pfp: "https://i.pinimg.com/originals/63/a8/45/63a845bfa536ec51341e74691b4d5796.png",
   };
 
   return (

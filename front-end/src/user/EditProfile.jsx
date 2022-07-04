@@ -8,7 +8,7 @@ export const EditProfile = ({ profile_user }) => {
 
   const handleSubmit = async (e) => {
     e.preventDefault();
-
+    
     const user = {
       profile_user,
     };

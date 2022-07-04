@@ -4,7 +4,7 @@ import EditGeneral from "./EditGeneral";
 import { EditProfile } from "./EditProfile";
 const CustomerProfile = () => {
   let profile_user = {
-    name: { f_name: "Lana", l_name: "Rhodes" },
+    name: { f_name: "L", l_name: "R" },
     bio: "    Lorem ipsum dolor sit amet, consectetur adipisicing elit. Repudiandae quibusdam illum perspiciatis nemo, eius dignissimos adipisci animi quos quisquam esse? Suscipit voluptas dolores corrupti blanditiis maxime ratione nemo alias consequuntur.",
     followers: 321241231,
     socials: {
@@ -14,8 +14,8 @@ const CustomerProfile = () => {
     },
     email: "vishu.dabas201@gmail.com",
     phonenumber: 9212201511,
-    cover: "https://wallpaperaccess.com/full/5721388.jpg",
-    pfp: "https://i.pinimg.com/originals/63/a8/45/63a845bfa536ec51341e74691b4d5796.png",
+    // cover: "https://wallpaperaccess.com/full/5721388.jpg",
+    // pfp: "https://i.pinimg.com/originals/63/a8/45/63a845bfa536ec51341e74691b4d5796.png",
   };
 
   let [active, setActive] = useState(["active", "", ""]);
