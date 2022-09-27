@@ -7,13 +7,23 @@ const {
     markUserCustomer,
     markUserArtist,
 } = require("../../Services/UserService");
+const cloudinary = require("../../config/cloudinary");
 const userService = require("../../Services/UserService");
 const AuthMiddleware = require("./AuthMiddleware");
+const customerService = require("./../../Services/CustomerService");
 
 const router = express.Router();
 
-router.get("/", (req, res) => {
-    res.json(req.user);
+router.get("/", AuthMiddleware.isAuth, async(req, res) => {
+    try {
+        const user = await userService.getUserById(
+            mongoose.mongo.ObjectId(req.user.id)
+        );
+        res.json(user);
+    } catch (Err) {
+        const response = { success: false, message: error };
+        res.json(response);
+    }
 });
 
 router.post(
@@ -162,4 +172,59 @@ router.get(
         }
     }
 );
+
+router.post(
+    "/:id/setprofilepic",
+    AuthMiddleware.isUserAuthorOfRequest,
+
+    async(req, res) => {
+        try {
+            const fileStr = req.body.data;
+            // console.log(fileStr);
+            await userService.setProfilePic(fileStr, req.params.id);
+            res.json({
+                success: true,
+                message: "image uploaded successfully",
+            });
+        } catch (err) {
+            console.error(err);
+            res.status(500).json({ success: false, message: "Something went wrong" });
+        }
+    }
+);
+
+router.put(
+    "/:id/edit",
+    AuthMiddleware.isUserAuthorOfRequest,
+    async(req, res, next) => {
+        try {
+            const newUser = req.body;
+            const savedUser = await userService.updateUser(
+                newUser,
+                mongoose.mongo.ObjectId(req.params.id)
+            );
+            res.json({ success: true, message: "User Updated Succesfully" });
+        } catch (err) {
+            res.json({ success: false, message: err });
+        }
+    }
+);
+
+router.put(
+    "/:id/editaddress",
+    AuthMiddleware.isUserAuthorOfRequest,
+    async(req, res) => {
+        try {
+            const newAddress = req.body;
+            const savedUser = await userService.updateAddress(
+                newAddress,
+                mongoose.mongo.ObjectId(req.params.id)
+            );
+            res.json({ success: true, message: "User Updated Succesfully" });
+        } catch (err) {
+            res.json({ success: false, message: err });
+        }
+    }
+);
+
 module.exports = router;

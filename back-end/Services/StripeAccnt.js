@@ -10,14 +10,12 @@ const createAccount = async(user_id) => {
 };
 
 const createAccountLink = async(accnt_id, user_id) => {
-    console.log(accnt_id);
     const account_link = await stripe.accountLinks.create({
         account: accnt_id,
         refresh_url: `http://localhost:3000/user/${user_id}/artist`,
         return_url: `http://localhost:3000/user/${user_id}/artist`,
         type: "account_onboarding",
     });
-    console.log(account_link);
     return account_link;
 };
 
@@ -42,28 +40,34 @@ const createCheckOutSession = async(cart_item) => {
     return session;
 };
 
-const createPriceObject = async(product) => {
-    const price = await stripe.prices.create({
-        unit_amount: product.price,
+const createPriceObject = async(
+    product_id,
+    artist_stripe_account_id,
+    price
+) => {
+    const priceObject = await stripe.prices.create({
+        unit_amount: price,
         currency: "inr",
-        product: product.id,
+        product: product_id,
+    }, {
+        stripeAccount: `${artist_stripe_account_id}`,
     });
-    return price;
+    return priceObject;
 };
 
 const createProductObject = async(product, artist_stripe_account_id) => {
-    console.log(product.product_name);
     const newProduct = await stripe.products.create({
         name: product.product_name,
         id: product.id,
         // add images
-        metadata: { artist: product.artist.artist_name },
+        images: [
+            "https://icon-library.com/images/products-icon/products-icon-25.jpg",
+        ],
         url: process.env.CLIENT + "/product/" + product.id,
     }, {
         stripeAccount: `${artist_stripe_account_id}`,
     });
-    const price = await createPriceObject(product);
-    return {...newProduct, price };
+    return {...newProduct };
 };
 
 const retrieveSession = async(session_id) => {

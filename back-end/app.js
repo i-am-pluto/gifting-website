@@ -27,10 +27,10 @@ app.use(
         origin: "http://localhost:3000",
     })
 );
+
+app.use(express.json({ limit: "50mb" }));
+app.use(express.urlencoded({ limit: "50mb", extended: true }));
 app.use(bodyParser.json());
-
-app.use(bodyParser.urlencoded({ extended: true }));
-
 app.use(function(req, res, next) {
     res.header("Access-Control-Allow-Credentials", true);
     res.header("Access-Control-Allow-Origin", req.headers.origin);
@@ -49,7 +49,6 @@ app.use(function(req, res, next) {
 app.get("/", (req, res) => {
     res.end("Hello WOlrd");
 });
-console.log(process.env.DB_PASS);
 /**
  * -------------- SESSION SETUP ----------------
  */

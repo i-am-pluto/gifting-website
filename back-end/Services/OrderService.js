@@ -1,5 +1,6 @@
 const Orders = require("../Models/orders/OrdersModel");
 const { addOrderToCustomer } = require("./CustomerService");
+const orderRepository = require("./../Repositories/OrdersRepository");
 
 const createAnOrder = async(cart_item, cart, user_id, address, sessionID) => {
     const order = new Orders({
@@ -22,7 +23,37 @@ const getOrderByPaymentIntent = async(payment_intent_id) => {
 };
 
 const markOrderPaid = async(order) => {
-    order.status = "PAYMENT RECIEVED";
+    order.status = "PAYMENT_RECIEVED";
+    const savedOrder = await order.save();
+    return savedOrder;
+};
+
+// get order details
+const getOrderById = async(order_id) => {
+    const order = orderRepository.getOrderId(order_id);
+    return order;
+};
+
+// set order dispatched
+const setOrderDispatched = async(order_id) => {
+    const order = orderRepository.getOrderById(order_id);
+    order.status = "DISPATCHED";
+    const savedOrder = await order.save();
+    return savedOrder;
+};
+
+// set order delivered
+const setOrderDelivered = async(order_id) => {
+    const order = orderRepository.getOrderById(order_id);
+    order.status = "DELIVERED";
+    const savedOrder = await order.save();
+    return savedOrder;
+};
+
+// end the order
+const setOrderCompleted = async(order_id) => {
+    const order = orderRepository.getOrderById(order_id);
+    order.status = "COMPLETED";
     const savedOrder = await order.save();
     return savedOrder;
 };
@@ -30,4 +61,8 @@ const markOrderPaid = async(order) => {
 module.exports = {
     createAnOrder,
     getOrderByPaymentIntent,
+    getOrderById,
+    setOrderCompleted,
+    setOrderDelivered,
+    setOrderDispatched,
 };

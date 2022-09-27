@@ -32,12 +32,13 @@ const OrdersSchema = new Schema({
     order_status: {
         type: String,
         enum: [
-            "PAYMENT NOT RECIEVED",
-            "PAYMENT RECIVED",
+            "PAYMENT_NOT_RECIEVED",
+            "PAYMENT_RECIVED",
             "DISPATCHED",
             "DELIVERED",
+            "COMPLETED",
         ],
-        default: "PAYMENT NOT RECIEVED",
+        default: "PAYMENT_NOT_RECIEVED",
     },
     payment_intent_id: {
         type: String,
@@ -45,6 +46,10 @@ const OrdersSchema = new Schema({
     c_id: {
         type: mongoose.Types.ObjectId,
         ref: "Customer",
+    },
+    a_id: {
+        type: mongoose.Types.ObjectId,
+        ref: "Artist",
     },
 }, { timestamps: true });
 

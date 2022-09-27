@@ -11,7 +11,7 @@ const AuthMiddleware = require("./AuthMiddleware");
 // get a product
 router.get("/:id", async(req, res) => {
     const product = await productServices.getAProduct(
-        mongoose.Types.ObjectId(req.params.id)
+        mongoose.Types.ObjectId(mongoose.mongo.ObjectId(req.params.id))
     );
     res.json(product);
 });
@@ -23,7 +23,10 @@ router.post(
     "/:id/add",
     AuthMiddleware.isUserAuthorOfRequest,
     async(req, res) => {
-        const product = await productServices.addAProduct(req.body, req.user.id);
+        const product = await productServices.addAProduct(
+            req.body,
+            mongoose.mongo.ObjectId(req.user.id)
+        );
         if (!product) {
             res.json({
                 message: "Failed To Add The Product",
@@ -34,6 +37,83 @@ router.post(
                 id: product.id,
                 message: "Added The Product Successfully",
                 success: true,
+            });
+        }
+    }
+);
+
+router.post(
+    "/:id/addvarients",
+    AuthMiddleware.isArtistToProduct,
+    async(req, res) => {
+        const product = await productServices.addVarients(
+            req.body.varients,
+            mongoose.mongo.ObjectId(req.params.id),
+            mongoose.mongo.ObjectId(req.user.id)
+        );
+        if (!product) {
+            res.json({
+                message: "Failed To Add The Product",
+                success: false,
+            });
+        } else {
+            res.json({
+                message: "Added The Product Successfully",
+                success: true,
+            });
+        }
+    }
+);
+
+// ADD main image
+router.post(
+    "/:id/addmainimage",
+    AuthMiddleware.isArtistToProduct,
+    async(req, res) => {
+        const product = await productServices.addMainImage(
+            req.body.mainimage,
+            mongoose.mongo.ObjectId(req.params.id),
+            mongoose.mongo.ObjectId(req.user.id)
+        );
+        if (!product) {
+            res.json({
+                message: "Failed To Add The Product",
+                success: false,
+            });
+        } else {
+            res.json({
+                message: "Added The Product Successfully",
+                success: true,
+            });
+        }
+    }
+);
+// add gift image
+router.post(
+    "/:id/addgiftimage",
+    AuthMiddleware.isArtistToProduct,
+    async(req, res) => {
+        try {
+            const savedProduct = await productServices.addAGiftImage(
+                req.body.imageFile,
+                mongoose.mongo.ObjectId(req.user.id),
+                mongoose.mongo.ObjectId(req.params.id)
+            );
+            res.json({
+                message: "Added The Product Successfully",
+                success: true,
+            });
+        } catch (error) {
+            console.log(error);
+            // delete all added images
+            const response = productServices.deleteAllImages(
+                mongoose.mongo.ObjectId(req.user.id),
+                mongoose.mongo.ObjectId(req.params.id)
+            );
+
+            res.json({
+                message: "Failed To Add The Images",
+                success: false,
             });
         }
     }

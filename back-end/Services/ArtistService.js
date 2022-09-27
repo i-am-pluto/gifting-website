@@ -1,6 +1,7 @@
 const mongoose = require("mongoose");
 const Artist = require("../Models/user/ArtistModel");
-const ArtistRepository = require("../Repositories/ArtistRepository");
+const { getArtistById } = require("../Repositories/ArtistRepository");
+const { uploadCover } = require("./CloudinaryService");
 const {
     createAccount,
     createAccountLink,
@@ -54,10 +55,31 @@ const markAccountEnabled = async(artist) => {
     return await artist.save();
 };
 
+const updateArtist = async(artistBody, user_id) => {
+    const artist = await getArtistById(user_id);
+
+    artist.socials = artistBody.socials;
+    artist.bio = artistBody.bio;
+
+    console.log(typeof artist);
+    const savedArtist = await artist.save();
+    return savedArtist;
+};
+
+const setCoverPic = async(image, user_id) => {
+    const uploadResponse = await uploadCover(image, user_id);
+    const user = await getArtistById(user_id);
+    user.cover_url = uploadResponse.secure_url;
+    await user.save();
+    return uploadResponse;
+};
+
 module.exports = {
     addAnArtist,
     addAProduct,
     getAccountByStripeAccountId,
     markAccountEnabled,
     activate_stripe,
+    updateArtist,
+    setCoverPic,
 };

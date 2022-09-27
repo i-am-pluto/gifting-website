@@ -1,27 +1,37 @@
 const mongoose = require("mongoose");
 const Products = require("../Models/product/ProductModel");
 const ReviewSchema = require("../Models/product/ReviewSchema");
-const { getArtistByID } = require("../Repositories/ArtistRepository");
+const {
+    getArtistByID,
+    getArtistById,
+} = require("../Repositories/ArtistRepository");
 const { getCategoryById } = require("../Repositories/CategoryRepository");
 const productRepository = require("../Repositories/ProductRepository");
 const reviewRepository = require("../Repositories/reviewRepository");
 const { createProductObject, createPriceObject } = require("./StripeAccnt");
 const artistService = require("./ArtistService");
+const {
+    uploadProductMainImage,
+    uploadProductImages,
+    deleteProductImage,
+} = require("./CloudinaryService");
 //get a product
 const getAProduct = async(id) => {
     let product = await productRepository.getProductById(id);
-    product.reviews.sort((a, b) => {
-        if (a.upvotes < b.upvotes) {
-            return -1;
-        }
-        if (a.upvotes > b.upvotes) {
-            return 1;
-        }
-        return 0;
-    });
+    if (product.reviews)
+        product.reviews.sort((a, b) => {
+            if (a.upvotes < b.upvotes) {
+                return -1;
+            }
+            if (a.upvotes > b.upvotes) {
+                return 1;
+            }
+            return 0;
+        });
     await visitProduct(product);
     return product;
 };
+
 // build the home page
 const getHomeSlider = async() => {
     let homeSLider = await productRepository.getProductsByClicks(0);
@@ -41,7 +51,8 @@ const getMostPopular = async() => {
 const addAProduct = async(jsonObject, user_id) => {
     const tempCat = jsonObject.categories;
     const categories = new Array();
-    const artist = await getArtistByID(mongoose.Types.ObjectId(user_id));
+    const artist = await getArtistById(user_id);
+
     if (tempCat) {
         for (var i = 0; i < tempCat.length; i++) {
             const category = await getCategoryById(tempCat[i]);
@@ -51,7 +62,7 @@ const addAProduct = async(jsonObject, user_id) => {
             });
         }
     }
-    console.log(jsonObject);
+
     const product = new Products({
         product_name: jsonObject.product_name,
         categories: categories,
@@ -63,9 +74,6 @@ const addAProduct = async(jsonObject, user_id) => {
             artist_followers: artist.follower_count,
             artist_id: mongoose.Types.ObjectId(artist.user_id),
         },
-
-        price: jsonObject.price,
-        count_in_stock: jsonObject.count_in_stock,
         description: jsonObject.description,
         clicks: 0,
         sold_no: 0,
@@ -78,22 +86,108 @@ const addAProduct = async(jsonObject, user_id) => {
             manufacture: jsonObject.manufacture,
         },
         customization: jsonObject.customization,
+        customization_optional: jsonObject.customization_optional,
     });
-    const stripe_account = artist.stripe_account_id;
-    const stripe_product = await createProductObject(product, stripe_account.id);
 
-    product.stripe_price_id = stripe_product.price.id;
+    const stripe_account = artist.stripe_account_id;
+
+    const stripe_product = await createProductObject(product, stripe_account);
+
+    // add product to artist ki id
+
+    product.stripe_product_id = stripe_product.id;
 
     try {
         const savedProduct = await productRepository.addAProduct(product);
-        await artistService.addAProduct(artist, savedProduct.id);
-        console.log(savedProduct);
+        await artistService.addAProduct(
+            artist,
+            mongoose.mongo.ObjectId(product.id)
+        );
+
         return savedProduct;
     } catch (error) {
         console.log(error);
         return null;
     }
 };
+
+// add varients
+const addVarients = async(varients, product_id, artist_id) => {
+    const product = await productRepository.getProductById(product_id);
+    const artist = await getArtistById(artist_id);
+    const saveVarients = [];
+    varients.forEach(
+        async({ varient_name, varient_price, varient_stocks }, i) => {
+            const stripePriceObject = await createPriceObject(
+                product_id,
+                artist.stripe_account_id,
+                varient_price
+            );
+            const varient_stripe_id = stripePriceObject.id;
+            saveVarients.push({
+                varient_name,
+                varient_price,
+                varient_stocks,
+                varient_stripe_id,
+            });
+        }
+    );
+    product.varients = saveVarients;
+    const savedProduct = await product.save();
+    return savedProduct;
+};
+
+// edit varients
+
+// delete varients
+
+// add main image
+const addMainImage = async(imageFile, user_id, product_id) => {
+    const savedImageUrl = await uploadProductMainImage(
+        imageFile,
+        user_id,
+        product_id
+    );
+    const product = await productRepository.getProductById(product_id);
+    product.main_image_url = savedImageUrl.secure_url;
+    const savedProduct = await product.save();
+    return savedProduct;
+};
+
+const addAGiftImage = async(imageFile, user_id, product_id) => {
+    const product = await productRepository.getProductById(product_id);
+    const index = product.gift_image_urls.length;
+    const savedImageUrl = await uploadProductImages(
+        imageFile,
+        user_id,
+        product_id,
+        index
+    );
+    product.gift_image_urls.push(savedImageUrl.secure_url);
+    const savedProduct = await product.save();
+    return savedProduct;
+};
+
+// const deleteALLImages
+const deleteAllImages = async(user_id, product_id) => {
+    const product = await productRepository.getProductById(product_id);
+    if (!product.gift_image_urls) return true;
+    const gift_images = product.gift_image_urls;
+    for (var i = 0; i < gift_images.length; i++) {
+        const response = await deleteProductImage(product_id, index);
+        if (response.result !== "ok") {
+            return false;
+        }
+    }
+    product.gift_image_urls.clear();
+    await product.save();
+    return true;
+};
+
+// edit a particular gift image
+// find previous image index
+// edit the image
+// if new image i.e. replacing no image then push
 
 //add review
 const addReview = async(user_id, product_id, comment) => {
@@ -183,4 +277,8 @@ module.exports = {
     addAProduct,
     upvoteReview,
     downvoteReview,
+    addVarients,
+    addMainImage,
+    addAGiftImage,
+    deleteAllImages,
 };

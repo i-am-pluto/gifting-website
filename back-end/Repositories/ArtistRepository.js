@@ -1,10 +1,25 @@
 const { default: mongoose } = require("mongoose");
 const Artist = require("../Models/user/ArtistModel");
-const userService = require("../Services/UserService");
+const { getUserById } = require("./UserRepository");
+
 // get artist by id
-const getArtistByID = async(artist_id) => {
+
+const getArtistById = async(artist_id) => {
     const artist = await Artist.findOne({ user_id: artist_id });
-    return artist._doc;
+    return artist;
+};
+
+const getArtistCard = async(artist_id) => {
+    const artist = await getArtistById(artist_id);
+    const user = await getUserById(artist_id);
+    const card = {
+        artist_id: artist.artist_id,
+        name: artist.artist_name,
+        pfp_url: user.pfp_url,
+        cover_url: artist.cover_url,
+        follower_count: artist.follower_count,
+    };
+    return card;
 };
 
 // get artist by name || search
@@ -27,5 +42,6 @@ const addAnArtist = async(artist) => {
 
 module.exports = {
     addAnArtist,
-    getArtistByID,
+    getArtistById,
+    getArtistCard,
 };

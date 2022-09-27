@@ -26,6 +26,15 @@ const artistSchema = new Schema({
 
     // artist profile picture
     // artist cover picture
+    cover_url: String,
+
+    socials: {
+        instagram: String,
+        facebook: String,
+        twitter: String,
+        pinterest: String,
+        youtube: String,
+    },
 
     // payment details
     stripe_account_id: {

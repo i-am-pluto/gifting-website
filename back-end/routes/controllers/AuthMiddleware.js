@@ -1,4 +1,7 @@
 const { default: mongoose } = require("mongoose");
+const { getArtistById } = require("../../Repositories/ArtistRepository");
+const { getProductById } = require("../../Repositories/ProductRepository");
+const { getOrderById } = require("../../Services/OrderService");
 
 const isAuth = (req, res, next) => {
     if (req.isAuthenticated()) {
@@ -43,12 +46,16 @@ const isArtist = (req, res, next) => {
     }
 };
 
-const isArtistToProduct = (req, res, next) => {
-    if (
-        req.isAuthenticated() &&
-        req.user.artist &&
-        req.user.id === req.params.id
-    ) {
+const isArtistToProduct = async(req, res, next) => {
+    const artist_id = req.user.id;
+    const artist = await getArtistById(artist_id);
+
+    const product_id = mongoose.mongo.ObjectId(req.params.id);
+    let flag = false;
+    if (artist.products.indexOf(product_id) !== -1) {
+        flag = true;
+    }
+    if (req.isAuthenticated() && req.user.artist && flag) {
         next();
     } else {
         res.status(401).json({
@@ -99,6 +106,44 @@ const isUserAuthorOfRequest = (req, res, next) => {
     }
 };
 
+const canUserViewOrder = (req, res, next) => {
+    const orderId = mongoose.mongo.ObjectId(req.params.orderid);
+    const order = getOrderById(orderId);
+    if (order.c_id === req.user.id || order.a_id === req.user.id) {
+        next();
+    } else {
+        res.status(401).json({
+            message: "The user is unautherised to make changes to this product",
+            success: false,
+        });
+    }
+};
+
+const isUserArtistOfOrder = (req, res, next) => {
+    const orderId = mongoose.mongo.ObjectId(req.params.orderid);
+    const order = getOrderById(orderId);
+    if (order.a_id === req.user.id) {
+        next();
+    } else {
+        res.status(401).json({
+            message: "The user is unautherised to make changes to this product",
+            success: false,
+        });
+    }
+};
+const isUserCustomerOfOrder = (req, res, next) => {
+    const orderId = mongoose.mongo.ObjectId(req.params.orderid);
+    const order = getOrderById(orderId);
+    if (order.c_id === req.user.id) {
+        next();
+    } else {
+        res.status(401).json({
+            message: "The user is unautherised to make changes to this product",
+            success: false,
+        });
+    }
+};
+
 module.exports = {
     isAdmin,
     isArtist,
@@ -108,4 +153,7 @@ module.exports = {
     isArtistToProduct,
     isCustomerToCart,
     isUserAuthorOfRequest,
+    canUserViewOrder,
+    isUserArtistOfOrder,
+    isUserCustomerOfOrder,
 };

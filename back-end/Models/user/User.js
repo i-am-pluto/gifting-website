@@ -6,6 +6,11 @@ const Schema = mongoose.Schema;
 const userSchema = new Schema({
     // add a profile picture
 
+    pfp_url: {
+        type: String,
+        required: false,
+    },
+
     name: {
         f_name: String,
         l_name: { type: String, required: true },
@@ -23,11 +28,11 @@ const userSchema = new Schema({
         ],
         validate: [isEmail, "invalid email"],
     },
-    phone: [{
+    phone: {
         type: Number,
-        match: /^(\()?\d{3}(\))?(-|\s)?\d{3}(-|\s)\d{4}$/,
-    }, ],
-    address: [{
+        match: /^(\+\d{1,2}\s?)?1?\-?\.?\s?\(?\d{3}\)?[\s.-]?\d{3}[\s.-]?\d{4}$/,
+    },
+    address: {
         fline: String,
         sline: String,
         city: String,
@@ -39,7 +44,7 @@ const userSchema = new Schema({
             match: /^[1-9]{1}[0-9]{2}\\s{0, 1}[0-9]{3}$/,
         },
         tag: String,
-    }, ],
+    },
 
     payment: [{
         card_number: {

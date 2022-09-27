@@ -13,6 +13,9 @@ const productSchema = new Schema({
 
     // images  { to be added}
 
+    main_image_url: String,
+    gift_image_urls: [String],
+
     artist: {
         artist_name: String,
         artist_followers: Number,
@@ -24,20 +27,13 @@ const productSchema = new Schema({
         },
     },
 
-    price: {
-        type: Number,
-        required: true,
-        default: 0,
-    },
-    // stripe price_id
-    stripe_price_id: {
-        type: String,
-    },
-    count_in_stock: {
-        type: Number,
-        required: true,
-        default: 0,
-    },
+    stripe_product_id: String,
+    varients: [{
+        varient_name: String,
+        varient_price: Number,
+        varient_stocks: Number,
+        varient_stripe_id: String,
+    }, ],
     description: {
         type: String,
     },
@@ -61,11 +57,16 @@ const productSchema = new Schema({
     customization: {
         type: String,
     },
+    customization_optional: {
+        type: Boolean,
+    },
     clicks: {
         type: Number,
+        default: 0,
     },
     sold_no: {
         type: Number,
+        default: 0,
     },
     Reviews: [ReviewSchema],
     created_on: {

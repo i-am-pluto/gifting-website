@@ -3,6 +3,7 @@ const { createACart } = require("./CartService");
 const customerRepository = require("../Repositories/CustomerRepository");
 const { getProductById } = require("../Repositories/ProductRepository");
 const { getArtistByID } = require("../Repositories/ArtistRepository");
+const { getOrderId } = require("./OrderService");
 
 const addACustomer = async(user_id) => {
     const cart = await createACart();
@@ -46,10 +47,29 @@ const addOrderToCustomer = async(user_id, order_id) => {
     await customer.save();
 };
 
+const getOrdersByCustomerId = async(user_id, pgeno) => {
+    const customer = getCustomerById(user_id);
+
+    const orderIds = customer.orders;
+    const orders = [];
+
+    for (var i = 0; i < 50; i++) {
+        orders.push(await getOrderById(orderIds[orderIds.length - (pgeno - 1) * 50 - i]));
+    }
+
+
+    for (orderId in orderIds) {
+        // get the order details for each order 
+        orders.push(await getOrderById(orderId));
+    }
+    return orders;
+};
+
 module.exports = {
     addACustomer,
     addToCart,
     getCartByCustomerId,
     getCustomerById,
     addOrderToCustomer,
+    getOrdersByCustomerId,
 };
