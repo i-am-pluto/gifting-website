@@ -1,12 +1,12 @@
 import React from "react";
 import "./ArtistCard.css";
 
-function ArtistCard({ Artist }) {
-  const pfp_image = Artist.artist_pfp;
-  const cover_image = Artist.artist_cover;
-  const artist_name = Artist.artist_name;
-  let artist_followers = Artist.followers_count;
-  const artist_bio = Artist.artist_bio;
+function ArtistCard({ artist,artist_id }) {
+  const pfp_image = artist.pfp_url;
+  const cover_image = artist.cover_url;
+  const artist_name = artist.name;
+  let artist_followers = artist.follower_count;
+  const artist_bio = artist.bio;
   let c = 0;
   while (parseInt(artist_followers / 1000) > 0) {
     artist_followers /= 1000;
@@ -37,11 +37,11 @@ function ArtistCard({ Artist }) {
               </div>
               <div className="card-body little-profile text-center">
                 <div className="profile-img">
-                  <a href={"/profile/" + Artist.artist_id}>
+                  <a href={"/profile/" + artist_id}>
                     <img className="link-profile" src={pfp_image} alt="user" />
                   </a>
                 </div>
-                <a href={"/profile/" + Artist.artist_id}>
+                <a href={"/profile/" + artist_id}>
                   <h3 className="m-b-0 btn link-profile">{artist_name}</h3>
                 </a>
                 <p>{artist_bio}</p>{" "}

@@ -1,12 +1,13 @@
 import React from "react";
 
 function ArtistCardEdit({ Artist }) {
-  const pfp_image = Artist.artist_pfp;
-  const cover_image = Artist.artist_cover;
+  const pfp_image = Artist.pfp_url;
+  const cover_image = Artist.cover_url;
   const artist_name = Artist.artist_name;
-  let artist_followers = Artist.followers;
+  let artist_followers = Artist.follower_count;
   const artist_bio = Artist.bio;
   let c = 0;
+  console.log(Artist);
   while (parseInt(artist_followers / 1000) > 0) {
     artist_followers /= 1000;
     c++;

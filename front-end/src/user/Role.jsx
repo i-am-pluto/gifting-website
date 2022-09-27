@@ -4,28 +4,28 @@ import { useParams } from "react-router-dom/cjs/react-router-dom.min";
 function Role() {
   const [artistButton, setArtistButton] = useState("disabled");
   const [customerButton, setCustomerButton] = useState("");
+  const [user, setUser] = useState();
 
   const { id } = useParams();
 
   useEffect(() => {
     const fetchData = async () => {
-      const response = await fetch(
-        "http://localhost:5000/api/user/" + id + "/role",
-        {
-          method: "GET",
-          mode: "cors",
-          credentials: "include",
-          headers: {
-            "Content-Type": "application/json",
-          },
-        }
-      );
+      const response = await fetch("http://localhost:5000/api/user/", {
+        method: "GET",
+        mode: "cors",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      });
 
       if (response) {
         const body = await response.json();
-        if (!body.success) {
+        if (!body._id) {
           alert(body.message);
         }
+        setUser(body);
+        console.log(body);
         if (body.artist === true) {
           const artistButton = (
             <div className="">

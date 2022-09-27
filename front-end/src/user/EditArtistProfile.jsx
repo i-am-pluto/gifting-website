@@ -1,6 +1,13 @@
+import { toBeEmpty } from "@testing-library/jest-dom/dist/matchers";
 import React, { useState } from "react";
 
 const EditArtistProfile = ({ profile_user }) => {
+  // return <div></div>;
+
+  if (!profile_user.socials) {
+    profile_user.socials = {};
+  }
+
   const [bio, setBio] = useState(profile_user.bio);
   const [fb, setFb] = useState(
     profile_user.socials.facebook ? profile_user.socials.facebook : ""
@@ -17,25 +24,62 @@ const EditArtistProfile = ({ profile_user }) => {
   const [insta, setInsta] = useState(
     profile_user.socials.instagram ? profile_user.socials.instagram : ""
   );
+  const [cover, setCover] = useState();
 
   const handleSubmit = async (e) => {
     e.preventDefault();
 
-    const user = {
-      profile_user,
+    const tmp = {
+      facebook: fb,
+      twitter: tw,
+      instagram: insta,
+      pinterest: pin,
+      youtube: yt,
     };
-    const response = await fetch("http://localhost:5000/api/artist/edit", {
-      method: "POST",
-      mode: "cors",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify(user),
-    });
+    const socials = {};
+    for (const el in tmp) {
+      if (tmp[el]) {
+        socials[el] = tmp[el];
+      }
+    }
+
+    const user = {
+      socials: socials,
+      bio: bio,
+    };
+    const response = await fetch(
+      `http://localhost:5000/api/artist/${profile_user.id}/edit`,
+      {
+        method: "PUT",
+        mode: "cors",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(user),
+      }
+    );
     const data = await response.json();
     if (!data.success) {
       alert(data.message);
+    }
+
+    if (cover) {
+      const responsePfp = await fetch(
+        `http://localhost:5000/api/artist/${profile_user.id}/setcoverpic`,
+        {
+          method: "PUT",
+          mode: "cors",
+          credentials: "include",
+          body: JSON.stringify({ data: cover }),
+          headers: { "Content-Type": "application/json" },
+        }
+      );
+      const d2 = await responsePfp.json();
+      if (!d2.success) {
+        alert(d2.message);
+      }
+      // window.location.reload();
     }
   };
 
@@ -50,7 +94,7 @@ const EditArtistProfile = ({ profile_user }) => {
               <img
                 class="avatar img-circle img-thumbnail"
                 alt="avatar"
-                id="profile-pic"
+                id="cover-pic"
               />
               <h6>Cover Picture</h6>
               <input
@@ -58,13 +102,14 @@ const EditArtistProfile = ({ profile_user }) => {
                 class="form-control"
                 onChange={(input) => {
                   var reader = new FileReader();
+                  reader.readAsDataURL(input.target.files[0]);
                   reader.onload = (e) => {
                     document
-                      .getElementById("profile-pic")
+                      .getElementById("cover-pic")
                       .setAttribute("src", e.target.result);
+                    console.log(reader.result);
+                    setCover(reader.result);
                   };
-
-                  reader.readAsDataURL(input.target.files[0]);
                 }}
               />
             </div>

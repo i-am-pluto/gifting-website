@@ -1,14 +1,29 @@
 import React, { useState } from "react";
 
 const EditGeneral = ({ profile_user }) => {
-  const [cardHolder, setCardHolder] = useState();
-
-  const [cardNumber, setCardNumber] = useState();
-  const [expiry, setExpiry] = useState();
-  let address = {};
-  let artist = false;
-  let customer = false;
-  const handleSubmit = async (e) => {};
+  let address = profile_user.address;
+  let artist = profile_user.artist;
+  let customer = profile_user.customer;
+  const handleSubmit = async (e) => {
+    const body = address;
+    const response = await fetch(
+      "http://localhost:5000/api/user/" + profile_user.id + "/editaddress",
+      {
+        method: "PUT",
+        mode: "cors",
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json",
+        },
+        body: JSON.stringify(body),
+      }
+    );
+    const data = await response.json();
+    if (!data.success) {
+      alert("Info Not Updated");
+    }
+    window.location.reload();
+  };
 
   return (
     <div>
@@ -23,62 +38,20 @@ const EditGeneral = ({ profile_user }) => {
             <h3>Payment Information</h3>
             <form class="form-horizontal" onSubmit={handleSubmit}>
               <div class="form-group">
-                <label class="col-lg-5 control-label">Card Number:</label>
-                <div class="col-lg-8">
-                  <input
-                    type="tel"
-                    inputmode="numeric"
-                    autocomplete="cc-number"
-                    maxlength="19"
-                    class="form-control"
-                    value={cardNumber}
-                    placeholder="1234 5678 9123 4567"
-                    onChange={(e) => {
-                      if (isNaN(e.target.value) || e.target.value.length > 16) {
-                        e.target.style.borderColor = "red";
-                        return;
-                      }
-                      e.target.style.borderColor = "green";
-                      setCardNumber(e.target.value);
-                    }}
-                  />
-                </div>
+                *Gifting Website handles payment using a third party login to
+                your stripe account to view and manage your account details.
               </div>
-              <div class="form-group">
-                <label class="col-lg-5 control-label">Card Holder:</label>
-                <div class="col-lg-8">
-                  <input
-                    class="form-control"
-                    type="text"
-                    value={cardHolder}
-                    placeholder="lana rhodes"
-                    onChange={(e) => {
-                      setCardHolder(e.target.value);
-                    }}
-                  />
-                </div>
-              </div>
-              <div class="form-group">
-                <label class="col-lg-5 control-label">Expiry Date:</label>
-                <div class="col-lg-8">
-                  <input
-                    class="form-control"
-                    type="text"
-                    value={expiry}
-                    onChange={(e) => {
-                      if (!isNaN(e.target.value) || e.target.value.length > 4) {
-                        e.target.style.borderColor = "red";
-                        return;
-                      }
-                      e.target.style.borderColor = "green";
-                      setExpiry(e.target.value);
-                    }}
-                  />
-                </div>
-              </div>
-              <button className="btn btn-primary ml-3">
-                <i className="fas fa-save"></i>
-              </button>
+              <a
+                href="https://dashboard.stripe.com/"
+                className="btn btn-outline-warning"
+              >
+                <img
+                  src="https://woocommerce.com/wp-content/uploads/2011/12/stripe-logo-blue.png"
+                  alt=""
+                  srcset=""
+                  style={{ maxHeight: "20%", maxWidth: "20%" }}
+                />
+              </a>
             </form>
           </div>
 
@@ -90,7 +63,7 @@ const EditGeneral = ({ profile_user }) => {
                   type="text"
                   name="fline"
                   id="fline"
-                  placeholder="First Line"
+                  placeholder={address.fline}
                   className="form-control"
                   onChange={(e) => {
                     address.fline = e.target.value;
@@ -102,7 +75,7 @@ const EditGeneral = ({ profile_user }) => {
                   type="text"
                   name="sline"
                   id="sline"
-                  placeholder="Second Line"
+                  placeholder={address.sline}
                   className="form-control"
                   onChange={(e) => {
                     address.sline = e.target.value;
@@ -116,7 +89,7 @@ const EditGeneral = ({ profile_user }) => {
                   type="text"
                   name="city"
                   id="city"
-                  placeholder="City"
+                  placeholder={address.city}
                   className="form-control"
                   onChange={(e) => {
                     address.city = e.target.value;
@@ -128,7 +101,7 @@ const EditGeneral = ({ profile_user }) => {
                   type="text"
                   name="state"
                   id="state"
-                  placeholder="State"
+                  placeholder={address.state}
                   className="form-control"
                   onChange={(e) => {
                     address.state = e.target.value;
@@ -153,7 +126,7 @@ const EditGeneral = ({ profile_user }) => {
                 <input
                   type="text"
                   className="form-control"
-                  placeholder="zip"
+                  placeholder={address.pincode}
                   onChange={(e) => {
                     const n = e.target.value;
                     if (isNaN(n) || n.length != 6) {
@@ -184,7 +157,7 @@ const EditGeneral = ({ profile_user }) => {
 
             <br />
 
-            <button className="btn btn-primary">
+            <button className="btn btn-primary" onClick={handleSubmit}>
               <i className="fas fa-save"></i>
             </button>
           </div>

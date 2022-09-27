@@ -1,17 +1,19 @@
 import React from "react";
 import "./ProductCard.css";
-function ProductCard({ Product }) {
-  const productInfo = Product.productInfo;
-  const productTitle = Product.productTitle;
-  const image = Product.image;
-  const productSubtitle = Product.productSubtitle;
-  const productPrice = Product.productPrice;
+function ProductCard({ product }) {
+  console.log(product);
+  const productInfo = product.product_desc;
+  const productTitle = product.product_name;
+  const image = product.mainImage;
+  const productSubtitle = product.artist_name;
+  const productImage = product.main_image_url;
+  const productPrice = 0;
 
   return (
     <div style={{ marginTop: "120px" }}>
       <div class="wrapper">
         <div class="product-img">
-          <img src={image} height="100%" width="100%" />
+          <img src={productImage} height="100%" width="100%" />
         </div>
         <div class="product-info">
           <div class="product-text">

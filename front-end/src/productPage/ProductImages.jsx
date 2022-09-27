@@ -7,8 +7,8 @@ function ProductImages({ product }) {
       <div className="row">
         {product.map((prod) => {
           return (
-            <div className="col-sm product-image-div">
-              <img src={prod} alt="" srcset="" className="product-image" />
+            <div className="col product-image-div">
+              <img src={prod} alt="" className="product-image" />
             </div>
           );
         })}

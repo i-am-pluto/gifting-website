@@ -27,6 +27,7 @@ import ArtistProfile from "./user/ArtistProfile";
 import CustomerProfile from "./user/CustomerProfile";
 import AddAProduct from "./Seller/AddAProduct";
 import Role from "./user/Role";
+import { Varients } from "./Seller/Varients";
 
 function App() {
   let [user, setUser] = useState({});
@@ -52,7 +53,7 @@ function App() {
       <Header user={user} />
       <Router>
         <Switch>
-          <Route exact path="/seller" >
+          <Route exact path="/seller">
             <SellerWelcome />
           </Route>
           <Route exact path="/home">
@@ -77,13 +78,16 @@ function App() {
             <Role />
           </Route>
           <Route exact path="/user/:id/artist/">
-            <ArtistProfile />
+            <ArtistProfile user={user} />
           </Route>
           <Route exact path="/user/:id/customer/">
-            <CustomerProfile />
+            <CustomerProfile user={user} />
           </Route>
           <Route exact path="/user/:id/addaproduct">
             <AddAProduct />
+          </Route>
+          <Route exact path="/:id/varients">
+            <Varients />
           </Route>
           <Route exact path="/">
             <Redirect to="/home" />
