@@ -24,7 +24,16 @@ const uploadCover = async(image, user_id) => {
 };
 
 // upload main image
-const uploadProductMainImage = async(image, user_id, product_id) => {};
+const uploadProductMainImage = async(image, user_id, product_id) => {
+    var options = {
+        public_id: `${product_id}_mainimage`,
+        unique_filename: false,
+        overwrite: true,
+        folder: `${user_id}/products/${product_id}`,
+    };
+    const uploadResponse = await cloudinary.uploader.upload(image, options);
+    return uploadResponse.secure_url;
+};
 
 // upload product images
 const uploadProductImages = async(image, user_id, product_id, index) => {

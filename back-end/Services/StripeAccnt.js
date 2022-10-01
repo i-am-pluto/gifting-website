@@ -40,15 +40,12 @@ const createCheckOutSession = async(cart_item) => {
     return session;
 };
 
-const createPriceObject = async(
-    product_id,
-    artist_stripe_account_id,
-    price
-) => {
+const createPriceObject = async(product, artist_stripe_account_id, price) => {
+    console.log(product.id);
     const priceObject = await stripe.prices.create({
         unit_amount: price,
         currency: "inr",
-        product: product_id,
+        product: product.id,
     }, {
         stripeAccount: `${artist_stripe_account_id}`,
     });

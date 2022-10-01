@@ -1,6 +1,7 @@
 const Orders = require("../Models/orders/OrdersModel");
 const { addOrderToCustomer } = require("./CustomerService");
 const orderRepository = require("./../Repositories/OrdersRepository");
+const { getProductById } = require("../Repositories/ProductRepository");
 
 const createAnOrder = async(cart_item, cart, user_id, address, sessionID) => {
     const order = new Orders({
@@ -17,6 +18,30 @@ const createAnOrder = async(cart_item, cart, user_id, address, sessionID) => {
     return savedOrder;
 };
 
+const buyNow = async(productid, varient, customization, user_id) => {
+    const product = await getProductById(productid);
+    const artist = product.artist.artist_id;
+    console.log(productid);
+    const order = new Orders({
+        order_amount: varient.varient_price,
+        order_items: productid,
+        stripe_price_id: varient.varient_stripe_id,
+        c_id: user_id,
+        a_id: artist,
+        customization: customization,
+    });
+
+    const savedOrder = await order.save();
+    console.log(savedOrder);
+    console.log(order);
+    let index = product.varients.findIndex((el) => {
+        return el.varient_stripe_id === varient.varient_stripe_id;
+    });
+    if (index !== -1) product.varients[index].varient_stocks--;
+    product.save();
+    return savedOrder;
+};
+
 const getOrderByPaymentIntent = async(payment_intent_id) => {
     const order = await Orders.findOne({ payment_intent_id: payment_intent_id });
     return order;
@@ -28,9 +53,9 @@ const markOrderPaid = async(order) => {
     return savedOrder;
 };
 
-// get order details
+// get order detorder_idails
 const getOrderById = async(order_id) => {
-    const order = orderRepository.getOrderId(order_id);
+    const order = orderRepository.getOrderById(order_id);
     return order;
 };
 
@@ -65,4 +90,5 @@ module.exports = {
     setOrderCompleted,
     setOrderDelivered,
     setOrderDispatched,
+    buyNow,
 };

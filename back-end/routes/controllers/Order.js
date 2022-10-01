@@ -10,10 +10,33 @@ const router = express.Router();
 // view an order
 router.get("/:orderid/", AuthMiddleware.canUserViewOrder, async(req, res) => {
     try {
-        const order = getOrderById(mongoose.mongo.ObjectId(req.params.orderid));
+        const order = await getOrderById(
+            mongoose.mongo.ObjectId(req.params.orderid)
+        );
         res.json(order);
     } catch (error) {
-        res.json({ success: true, message: error });
+        res.json({ success: false, message: error });
+    }
+});
+
+router.post("/create", AuthMiddleware.isCustomer, async(req, res) => {
+    try {
+        const varient = req.body.varient;
+        const customization = req.body.customization;
+        const productid = req.body.productid;
+        const order = await orderService.buyNow(
+            mongoose.mongo.ObjectId(productid),
+            varient,
+            customization,
+            mongoose.mongo.ObjectId(req.user.id)
+        );
+        res.json({
+            success: true,
+            message: "Order Created",
+            orderid: order._id,
+        });
+    } catch {
+        res.json({ success: false, message: "error" });
     }
 });
 

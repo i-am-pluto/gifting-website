@@ -1,7 +1,9 @@
 const { default: mongoose } = require("mongoose");
 const { getArtistById } = require("../../Repositories/ArtistRepository");
 const { getProductById } = require("../../Repositories/ProductRepository");
+const { getCustomerById } = require("../../Services/CustomerService");
 const { getOrderById } = require("../../Services/OrderService");
+const { getUserById } = require("../../Services/UserService");
 
 const isAuth = (req, res, next) => {
     if (req.isAuthenticated()) {
@@ -25,8 +27,17 @@ const isAdmin = (req, res, next) => {
     }
 };
 
-const isCustomer = (req, res, next) => {
-    if (req.isAuthenticated() && req.user.admin) {
+const isCustomer = async(req, res, next) => {
+    if (!req.isAuthenticated()) {
+        res.status(401).json({
+            message: "User Not Logged in",
+            success: false,
+        });
+    }
+
+    const user_id = mongoose.mongo.ObjectId(req.user.id);
+    const user = await getUserById(user_id);
+    if (req.isAuthenticated() && (req.user.admin || user.customer)) {
         next();
     } else {
         res.status(401).json({
@@ -106,10 +117,11 @@ const isUserAuthorOfRequest = (req, res, next) => {
     }
 };
 
-const canUserViewOrder = (req, res, next) => {
+const canUserViewOrder = async(req, res, next) => {
     const orderId = mongoose.mongo.ObjectId(req.params.orderid);
-    const order = getOrderById(orderId);
-    if (order.c_id === req.user.id || order.a_id === req.user.id) {
+    const order = await getOrderById(orderId);
+    const user_id = mongoose.mongo.ObjectId(req.user.id);
+    if (order.c_id.equals(user_id) || order.a_id.equals(user_id)) {
         next();
     } else {
         res.status(401).json({

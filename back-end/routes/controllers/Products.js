@@ -10,10 +10,12 @@ const AuthMiddleware = require("./AuthMiddleware");
 
 // get a product
 router.get("/:id", async(req, res) => {
+    console.log(req.params.id);
     const product = await productServices.getAProduct(
         mongoose.Types.ObjectId(mongoose.mongo.ObjectId(req.params.id))
     );
     res.json(product);
+    // res.json({});
 });
 
 // get search results

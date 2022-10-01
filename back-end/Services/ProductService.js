@@ -115,24 +115,30 @@ const addAProduct = async(jsonObject, user_id) => {
 const addVarients = async(varients, product_id, artist_id) => {
     const product = await productRepository.getProductById(product_id);
     const artist = await getArtistById(artist_id);
-    const saveVarients = [];
-    varients.forEach(
-        async({ varient_name, varient_price, varient_stocks }, i) => {
-            const stripePriceObject = await createPriceObject(
-                product_id,
-                artist.stripe_account_id,
-                varient_price
-            );
-            const varient_stripe_id = stripePriceObject.id;
-            saveVarients.push({
-                varient_name,
-                varient_price,
-                varient_stocks,
-                varient_stripe_id,
-            });
-        }
-    );
+    let saveVarients = [];
+    console.log(varients);
+    for (var i = 0; i < varients.length; i++) {
+        const varient_name = varients[i].varient_name;
+        const varient_price = varients[i].varient_price;
+        const varient_stocks = varients[i].varient_stocks;
+        const stripePriceObject = await createPriceObject(
+            product,
+            artist.stripe_account_id,
+            varient_price
+        );
+        const varient_stripe_id = stripePriceObject.id;
+        saveVarients.push({
+            varient_name,
+            varient_price,
+            varient_stocks,
+            varient_stripe_id,
+        });
+    }
+
     product.varients = saveVarients;
+
+    console.log(saveVarients);
+
     const savedProduct = await product.save();
     return savedProduct;
 };
@@ -142,14 +148,14 @@ const addVarients = async(varients, product_id, artist_id) => {
 // delete varients
 
 // add main image
-const addMainImage = async(imageFile, user_id, product_id) => {
+const addMainImage = async(imageFile, product_id, user_id) => {
     const savedImageUrl = await uploadProductMainImage(
         imageFile,
         user_id,
         product_id
     );
     const product = await productRepository.getProductById(product_id);
-    product.main_image_url = savedImageUrl.secure_url;
+    product.main_image_url = savedImageUrl;
     const savedProduct = await product.save();
     return savedProduct;
 };

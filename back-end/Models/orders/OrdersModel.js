@@ -5,12 +5,8 @@ const Schema = mongoose.Schema;
 const OrdersSchema = new Schema({
     order_amount: Number,
     order_items: {
-        cart_item: {
-            type: mongoose.mongo.ObjectId,
-        },
-        cart: {
-            type: mongoose.mongo.ObjectId,
-        },
+        type: mongoose.Types.ObjectId,
+        ref: "Products",
     },
     order_address: {
         fline: String,
@@ -20,7 +16,6 @@ const OrdersSchema = new Schema({
         country: String,
         pincode: {
             type: Number,
-            required: true,
             match: /^[1-9]{1}[0-9]{2}\\s{0, 1}[0-9]{3}$/,
         },
         tag: String,
@@ -32,13 +27,14 @@ const OrdersSchema = new Schema({
     order_status: {
         type: String,
         enum: [
+            "NOT_CONFIRMED",
             "PAYMENT_NOT_RECIEVED",
             "PAYMENT_RECIVED",
             "DISPATCHED",
             "DELIVERED",
             "COMPLETED",
         ],
-        default: "PAYMENT_NOT_RECIEVED",
+        default: "NOT_CONFIRMED",
     },
     payment_intent_id: {
         type: String,
@@ -51,6 +47,10 @@ const OrdersSchema = new Schema({
         type: mongoose.Types.ObjectId,
         ref: "Artist",
     },
+
+    customization: String,
+
+    stripe_price_id: String,
 }, { timestamps: true });
 
 const Orders = mongoose.model("Orders", OrdersSchema);
